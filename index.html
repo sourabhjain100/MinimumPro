@@ -6,7 +6,7 @@
     <title>Minimum Pro - Card Scorer</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        :root { --gold: #d4af37; --dark-bg: #1a1a1a; --card-bg: #2d2d2d; --danger: #ff4d4d; --success: #00ff88; --off-white: #f8f9fa; --test-blue: #0d6efd; }
+        :root { --gold: #e0b210; --dark-bg: #1a1a1a; --card-bg: #2d2d2d; --danger: #ff4d4d; --success: #00ff88; --off-white: #f8f9fa; --test-blue: #0d6efd; }
         
         /* Mobile-first and 400px width optimizations */
         body { background-color: var(--dark-bg); color: white; font-family: 'Segoe UI', sans-serif; padding-bottom: 40px; font-size: 14px; }
@@ -19,8 +19,8 @@
         .btn { transition: transform 0.05s ease-in-out, filter 0.1s; font-size: 0.85rem; }
         .btn:active { transform: scale(0.92) !important; filter: brightness(1.3); }
 
-        .btn-gold { background-color: var(--gold) !important; color: black !important; font-weight: bold; border: none; }
-        .btn-gold:hover, .btn-gold:focus { background-color: var(--gold) !important; color: black !important; box-shadow: none; opacity: 0.9; }
+        .btn-gold { background-color: var(--gold) !important; color: white !important; font-weight: bold; border: none; }
+        .btn-gold:hover, .btn-gold:focus { background-color: var(--gold) !important; color: white !important; box-shadow: none; opacity: 0.9; }
         
         .btn-test { background-color: var(--test-blue) !important; color: white !important; font-weight: bold; border: none; }
         
@@ -31,14 +31,30 @@
         .btn-export { background-color: transparent !important; color: var(--gold) !important; border: 1px solid var(--gold) !important; }
         .btn-xs { padding: 2px 6px; font-size: 0.75rem; border-radius: 4px; }
 
+        .how-to-play-link {
+            color: var(--gold);
+            text-decoration: underline;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: inline-block;
+        }
+        .how-to-play-link:hover, .how-to-play-link:focus {
+            color: var(--off-white);
+        }
+
         .entry-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .player-entry-item { 
             display: flex; flex-direction: column; gap: 4px;
             background: rgba(255,255,255,0.05); padding: 6px 8px; border-radius: 6px; border: 1px solid #444;
         }
+        .player-entry-item.skipped-player { opacity: 0.55; border-style: dashed; }
         .player-header { display: flex; justify-content: space-between; align-items: center; }
         .player-info { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: 600; color: white !important; overflow: hidden; }
         
+        #player-name-game::placeholder {
+            color: #9e9e9e !important;
+            opacity: 1;
+        }
         #player-name-game:focus {
             box-shadow: none !important;
             border-color: var(--gold) !important;
@@ -50,6 +66,10 @@
             color: var(--gold); text-align: center; font-weight: 800; 
             border-radius: 4px; font-size: 0.85rem; padding: 2px;
         }
+        .manual-score-input::placeholder {
+            color: #9e9e9e !important;
+            opacity: 1;
+        }
         .manual-score-input:focus { outline: none; border-color: var(--success); background: #4a4a4a; box-shadow: none; }
         .input-error { border: 2px solid var(--danger) !important; background: #442222 !important; }
 
@@ -58,28 +78,39 @@
 
         .readd-container { display: flex; flex-wrap: wrap; gap: 4px; padding: 4px; background: rgba(0,0,0,0.2); border-radius: 6px; }
 
-        .score-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        /* Compact score calculator modal (-20 through K) */
+        #scoreModal .modal-dialog { max-width: 320px; margin: 0.75rem auto; }
+        .score-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
         .score-opt { 
-            aspect-ratio: 1/1; border-radius: 6px; border: 1px solid #ccc; 
+            height: 36px; border-radius: 5px; border: 1px solid #ccc; 
             background: var(--off-white); color: #333; display: flex; align-items: center; 
-            justify-content: center; font-weight: 800; cursor: pointer; transition: 0.1s; font-size: 0.9rem;
+            justify-content: center; font-weight: 800; cursor: pointer; transition: 0.1s; font-size: 0.8rem;
+            line-height: 1; padding: 0 2px;
         }
+        .score-opt.playing-card {
+            background: linear-gradient(165deg, #ffffff 0%, #f4efe2 100%);
+            border: 1px solid #d0c6ad;
+            box-shadow: inset 0 0 0 1px rgba(224, 178, 16, 0.35), 0 1px 2px rgba(0, 0, 0, 0.45);
+            position: relative;
+        }
+        .score-opt.playing-card.card-red { color: #b91c1c; }
+        .score-opt.playing-card.card-black { color: #18181b; }
         .opt-m20 { color: #157347 !important; }
         .opt-50 { color: #bb2d3b !important; }
-        .score-opt:active { background: var(--gold) !important; color: black !important; transform: scale(0.95); }
+        .score-opt:active { background: var(--gold) !important; color: white !important; transform: scale(0.95); }
         .score-opt.active-20 { background: var(--success) !important; color: black !important; border-color: var(--success); }
         .score-opt.active-0 { background: #888 !important; color: white !important; border-color: #888; }
         .score-opt.active-50 { background: var(--danger) !important; color: white !important; border-color: var(--danger); }
-        .score-opt.active-card { background: var(--gold) !important; color: black !important; }
+        .score-opt.active-card { background: var(--gold) !important; color: white !important; border-color: var(--gold) !important; }
         .score-opt.disabled { opacity: 0.15; cursor: not-allowed; pointer-events: none; filter: grayscale(1); }
 
         .modal-display-area {
             background: #000; border: 2px solid var(--gold); border-radius: 8px;
-            padding: 10px 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;
+            padding: 8px 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
         }
-        .modal-total-val { font-size: 1.8rem; font-weight: 900; color: var(--gold); }
-        .card-tray { display: flex; flex-wrap: wrap; gap: 3px; max-width: 60%; justify-content: flex-end; }
-        .tray-item { background: var(--gold); color: black; padding: 2px 5px; border-radius: 3px; font-size: 0.7rem; font-weight: 900; }
+        .modal-total-val { font-size: 1.5rem; font-weight: 900; color: var(--gold); }
+        .card-tray { display: flex; flex-wrap: wrap; gap: 3px; max-width: 65%; justify-content: flex-end; }
+        .tray-item { background: var(--gold); color: white; padding: 2px 5px; border-radius: 3px; font-size: 0.7rem; font-weight: 900; }
 
         .score-m20 { color: var(--success) !important; font-weight: bold; }
         .score-high { color: var(--danger) !important; font-weight: bold; }
@@ -87,15 +118,15 @@
         thead tr { background-color: var(--off-white) !important; color: #1a1a1a !important; }
         thead tr th { border-bottom: 2px solid var(--gold) !important; font-size: 0.75rem; padding: 6px 4px; }
         tbody tr td { font-size: 0.75rem; padding: 6px 4px; }
-        tfoot tr { background-color: var(--off-white) !important; color: #1a1a1a !important; }
-        tfoot tr td { border-top: 2px solid var(--gold) !important; font-size: 0.75rem; padding: 6px 4px; }
+        tfoot tr { background-color: var(--off-white) !important; color: #1a1a1a !important; font-weight: bold !important; }
+        tfoot tr td { border-top: 2px solid var(--gold) !important; font-size: 0.75rem; padding: 6px 4px; font-weight: bold !important; }
 
-        .winner-highlight { background-color: var(--gold) !important; color: black !important; font-weight: 900 !important; }
+        .winner-highlight { background-color: var(--gold) !important; color: white !important; font-weight: 900 !important; }
         .loser-highlight { background-color: var(--danger) !important; color: white !important; font-weight: 900 !important; }
-        .badge-label { display: block; font-size: 0.45rem; text-transform: uppercase; line-height: 1; padding-top: 1px; }
+        .badge-label { display: block; font-size: 0.45rem; text-transform: uppercase; line-height: 1; padding-top: 1px; font-weight: bold; }
         
         .table-clickable { cursor: pointer; }
-        .editing-row { background-color: rgba(212, 175, 55, 0.4) !important; border: 1px solid var(--gold); }
+        .editing-row { background-color: rgba(224, 178, 16, 0.4) !important; border: 1px solid var(--gold); }
 
         .status-banner { 
             display: none; background: var(--danger); color: white; 
@@ -119,6 +150,7 @@
         .border-gold { border: 1px solid var(--gold) !important; }
         
         #debug-footer { display: block; }
+        #load-test-wrapper { display: none; }
 
         /* Rules Modal Styling */
         .rules-section-title { color: var(--gold); border-bottom: 1px solid #444; padding-bottom: 4px; margin-top: 15px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.9rem; }
@@ -133,7 +165,10 @@
         .modal-footer { padding: 8px 12px; }
 
         /* Custom Tab Navigation Styling */
+        #appTabs { display: flex; width: 100%; }
+        #appTabs .nav-item { flex: 1 1 0; width: 50%; }
         .nav-tabs .nav-link {
+            width: 100%;
             color: #aaa;
             background-color: #222;
             border: 1px solid #444;
@@ -141,7 +176,7 @@
             font-weight: bold;
         }
         .nav-tabs .nav-link.active {
-            color: black !important;
+            color: white !important;
             background-color: var(--gold) !important;
             border-color: var(--gold) !important;
         }
@@ -151,11 +186,7 @@
 
 <div class="container mt-3">
     <div class="text-center mb-2" style="user-select: none;">
-        <h1 class="gold-text m-0" style="letter-spacing: 3px; font-weight: 900; font-size: 1.75rem;">MINIMUM PRO</h1>
-        <div class="d-flex justify-content-center align-items-center gap-2 mt-1">
-            
-            <button class="btn btn-outline-light btn-xs py-1 px-2" data-bs-toggle="modal" data-bs-target="#rulesModal">How to Play</button>
-        </div>
+        <h1 class="gold-text m-0" style="letter-spacing: 3px; font-weight: 900; font-size: 1.75rem; cursor: pointer;" onclick="handleTitleClick()">MINIMUM PRO</h1>
     </div>
 
     <!-- Tab Navigation Bar -->
@@ -189,44 +220,32 @@
                 <div class="card p-2 mb-2">
                     <div class="d-flex justify-content-between align-items-center mb-2 px-1">
                         <span class="gold-text fw-bold" style="font-size: 0.85rem;"><span id="mode-text">Round</span> <span id="round-num-display">1</span></span>
-                        <div class="btn-group">
-                            <button id="cancel-edit-btn" class="btn btn-outline-light btn-xs me-1" style="display:none;" onclick="cancelEdit()">Cancel</button>
-                            <button id="submit-btn" class="btn btn-gold btn-xs px-2 py-1" onclick="submitRound()">SUBMIT SCORE</button>
-                        </div>
+                        <button id="cancel-edit-btn" class="btn btn-outline-light btn-xs" style="display:none;" onclick="cancelEdit()">Cancel</button>
                     </div>
-                    <div id="player-entry-list" class="entry-grid mb-1"></div>
+                    <div id="player-entry-list" class="entry-grid mb-2"></div>
+                    <div class="text-center mt-2 mb-1">
+                        <button id="submit-btn" class="btn btn-gold btn-xs px-4 py-1" onclick="submitRound()">SUBMIT SCORE</button>
+                    </div>
                     <div id="winner-error-banner" class="status-banner" style="margin-bottom: 0; margin-top: 4px;">Winner required!</div>
-                </div>
-
-                <div class="mt-2" id="debug-footer">
-                    <div class="row g-2">
-                        <div class="col-6">
-                            <button class="btn btn-test btn-xs w-100 py-2" onclick="requestConfirmation('Load test data? This will clear all existing scores.', loadDummyData)">Load Test Data</button>
-                        </div>
-                        <div class="col-6">
-                            <button id="clear-all-btn" class="btn btn-danger-solid btn-xs w-100 py-2" onclick="requestConfirmation('DANGER: This will delete ALL history permanently. Continue?', clearAllData)">Clear All Data</button>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
 
         <!-- SCOREBOARD PANE -->
-        <div class="tab-pane fade" id="scoreboard-pane" role="tabpanel" aria-labelledby="scoreboard-tab">
+        <div class="tab-pane fade" id="scoreboard-pane" role="tabpanel" aria-labelledby="scoreboard-tab" onclick="toggleScoreboardNames(event)">
             <div id="table-summary" class="table-summary-row">
                 <div id="round-summary"></div>
-                <button class="btn btn-export btn-xs px-2 py-1" onclick="exportJPG()">Export Scoreboard</button>
+                <button class="btn btn-gold btn-xs px-2 py-1" onclick="exportJPG()">Export Scoreboard</button>
             </div>
 
             <div id="capture-area" style="padding: 0px; width: fit-content; min-width: 100%;">
                 <div id="jpg-title">
                     <h2 class="gold-text" style="letter-spacing: 2px; font-weight: 900; margin-bottom: 0;">MINIMUM GAME</h2>
-                    <div style="color: #888; font-size: 0.85rem;">22 Mar 2026</div>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-dark table-striped text-center border-secondary mb-2" id="main-table">
                         <thead id="table-head">
-                            <tr id="table-headers"><th>Rnd</th></tr>
+                            <tr id="table-headers"><th>Round</th></tr>
                         </thead>
                         <tbody id="table-body"></tbody>
                         <tfoot id="table-footer"></tfoot>
@@ -235,6 +254,22 @@
             </div>
         </div>
 
+    </div>
+
+    <div class="mt-3" id="debug-footer">
+        <div class="row g-2" id="load-test-wrapper">
+            <div class="col-12">
+                <button class="btn btn-test btn-xs w-100 py-2" onclick="requestConfirmation('Load test data? This will clear all existing scores.', loadDummyData)">Load Test Data</button>
+            </div>
+        </div>
+        <div class="row g-2 mt-1">
+            <div class="col-12">
+                <button id="clear-all-btn" class="btn btn-danger-solid btn-xs w-100 py-2" onclick="requestConfirmation('DANGER: This will delete ALL history permanently. Continue?', clearAllData)">Clear All Data</button>
+            </div>
+        </div>
+        <div class="text-center mt-2">
+            <a href="#" class="how-to-play-link" data-bs-toggle="modal" data-bs-target="#rulesModal" onclick="event.preventDefault();">How to Play</a>
+        </div>
     </div>
 </div>
 
@@ -366,10 +401,27 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     let players = []; let rounds = []; let currentRoundScores = {};
+    let skippedPlayers = new Set();
     let allHistoricalPlayers = new Set();
     let activeModalPlayer = ""; let tempScoreMode = null; let tempCardList = [];
     let editRoundIndex = -1;
-    const cards = [{l:'A',v:1},{l:'2',v:2},{l:'3',v:3},{l:'4',v:4},{l:'5',v:5},{l:'6',v:6},{l:'7',v:7},{l:'8',v:8},{l:'9',v:9},{l:'10',v:10},{l:'J',v:11},{l:'Q',v:12},{l:'K',v:13}];
+    let titleClickCount = 0;
+    let showFullNamesOnScoreboard = false;
+    const cards = [
+        {l:'A',v:1,suit:'♠',color:'card-black'},
+        {l:'2',v:2,suit:'♥',color:'card-red'},
+        {l:'3',v:3,suit:'♣',color:'card-black'},
+        {l:'4',v:4,suit:'♦',color:'card-red'},
+        {l:'5',v:5,suit:'♠',color:'card-black'},
+        {l:'6',v:6,suit:'♥',color:'card-red'},
+        {l:'7',v:7,suit:'♣',color:'card-black'},
+        {l:'8',v:8,suit:'♦',color:'card-red'},
+        {l:'9',v:9,suit:'♠',color:'card-black'},
+        {l:'10',v:10,suit:'♥',color:'card-red'},
+        {l:'J',v:11,suit:'♣',color:'card-black'},
+        {l:'Q',v:12,suit:'♦',color:'card-red'},
+        {l:'K',v:13,suit:'♠',color:'card-black'}
+    ];
 
     // --- Persistence Logic ---
     function saveData() {
@@ -398,6 +450,20 @@
     window.onload = loadData;
     // -------------------------
 
+    function handleTitleClick() {
+        titleClickCount++;
+        if (titleClickCount >= 5) {
+            document.getElementById('load-test-wrapper').style.display = 'flex';
+            titleClickCount = 0;
+        }
+    }
+
+    function toggleScoreboardNames(event) {
+        if (event && (event.target.closest('button') || event.target.closest('.table-clickable'))) return;
+        showFullNamesOnScoreboard = !showFullNamesOnScoreboard;
+        renderTable(showFullNamesOnScoreboard);
+    }
+
     function showBannerError(id, msg) {
         const banner = document.getElementById(id);
         banner.innerText = msg; banner.style.display = 'block';
@@ -422,10 +488,10 @@
         table.style.whiteSpace = 'nowrap'; 
         html2canvas(area, { backgroundColor: "#1a1a1a", scale: 2, useCORS: true, width: area.scrollWidth, windowWidth: area.scrollWidth }).then(canvas => {
             const link = document.createElement('a');
-            link.download = `Minimum_Game_Scores_22_Mar_2026.jpg`;
+            link.download = `Minimum_Game_Scores.jpg`;
             link.href = canvas.toDataURL("image/jpeg", 0.9);
             link.click();
-            renderTable(false); title.style.display = 'none';
+            renderTable(showFullNamesOnScoreboard); title.style.display = 'none';
             area.style.padding = '0px'; table.style.whiteSpace = 'normal';
         });
     }
@@ -460,12 +526,14 @@
         }
     }
 
-    function removePlayer(name) {
-        requestConfirmation(`Remove ${name} from active round?`, () => {
-            players = players.filter(p => p !== name);
-            renderEntryList(); renderReaddSection();
-            saveData();
-        });
+    function toggleSkipPlayer(name) {
+        if (skippedPlayers.has(name)) {
+            skippedPlayers.delete(name);
+        } else {
+            skippedPlayers.add(name);
+            currentRoundScores[name] = null;
+        }
+        renderEntryList();
     }
 
     function renderReaddSection() {
@@ -479,7 +547,7 @@
     }
 
     function clearAllData() {
-        players = []; rounds = []; currentRoundScores = {}; allHistoricalPlayers.clear();
+        players = []; rounds = []; currentRoundScores = {}; skippedPlayers.clear(); allHistoricalPlayers.clear();
         updateUIMode(); renderEntryList(); renderTable(); renderReaddSection();
         document.getElementById('table-summary').style.display = "none";
         localStorage.removeItem('minPro_Data');
@@ -504,6 +572,7 @@
 
     function resetRoundScores() { 
         currentRoundScores = {};
+        skippedPlayers.clear();
         players.forEach(p => currentRoundScores[p] = null); 
         editRoundIndex = -1; updateUIMode(); 
     }
@@ -518,19 +587,20 @@
 
     function renderEntryList() {
         document.getElementById('player-entry-list').innerHTML = players.map((p, idx) => {
+            const isSkipped = skippedPlayers.has(p);
             const score = currentRoundScores[p];
-            const displayVal = score === null ? '' : score;
+            const displayVal = isSkipped ? 'SKIP' : (score === null ? '' : score);
             return `
-            <div class="player-entry-item">
+            <div class="player-entry-item ${isSkipped ? 'skipped-player' : ''}">
                 <div class="player-header">
                     <span class="player-info text-truncate">${p}</span>
-                    <input type="text" class="manual-score-input" value="${displayVal}" placeholder="-" data-index="${idx}"
+                    <input type="text" class="manual-score-input" value="${displayVal}" placeholder="-" data-index="${idx}" ${isSkipped ? 'disabled' : ''}
                            onclick="this.value=''; this.classList.remove('input-error'); updateManualScore('${p}', '')"
                            oninput="this.classList.remove('input-error'); this.value = updateManualScore('${p}', this.value)">
                 </div>
                 <div class="entry-controls">
-                    <button class="btn btn-outline-danger btn-xs" onclick="removePlayer('${p}')">Remove</button>
-                    <button class="btn btn-gold btn-xs" onclick="openScoreModal('${p}')">Set</button>
+                    <button class="btn ${isSkipped ? 'btn-warning' : 'btn-outline-danger'} btn-xs" onclick="toggleSkipPlayer('${p}')">${isSkipped ? 'Unskip' : 'Skip'}</button>
+                    <button class="btn btn-gold btn-xs" onclick="openScoreModal('${p}')" ${isSkipped ? 'disabled' : ''}>Set</button>
                 </div>
             </div>`}).join('');
         const inputs = document.querySelectorAll('.manual-score-input');
@@ -546,8 +616,15 @@
 
     function editRound(idx) {
         editRoundIndex = idx; const roundData = rounds[idx].scores;
+        skippedPlayers.clear();
         Object.keys(roundData).forEach(p => { if(!players.includes(p)) players.push(p); });
-        players.forEach(p => { currentRoundScores[p] = roundData[p] !== undefined ? roundData[p] : null; });
+        players.forEach(p => {
+            if (roundData[p] === undefined) {
+                currentRoundScores[p] = null;
+            } else {
+                currentRoundScores[p] = roundData[p];
+            }
+        });
         updateUIMode(); renderEntryList(); renderTable(); renderReaddSection(); 
         
         // Automatically switch to Entry tab when editing a round from Scoreboard
@@ -559,6 +636,7 @@
     function cancelEdit() { resetRoundScores(); renderEntryList(); renderTable(); renderReaddSection(); }
 
     function openScoreModal(p) {
+        if (skippedPlayers.has(p)) return;
         activeModalPlayer = p; document.getElementById('modalPlayerName').innerText = p;
         const ex = currentRoundScores[p];
         tempScoreMode = (ex === -20 || ex === 0 || ex === 50) ? ex : (ex === null ? null : 'cards');
@@ -575,7 +653,10 @@
             let activeClass = (tempScoreMode === obj.v) ? `active-${obj.v === -20 ? '20' : obj.v}` : '';
             html += `<div class="score-opt ${obj.c} ${activeClass} ${(tempScoreMode !== null && tempScoreMode !== obj.v) ? 'disabled' : ''}" onclick="selectFixed(${obj.v})">${obj.l}</div>`;
         });
-        cards.forEach(c => { html += `<div class="score-opt ${(tempScoreMode !== null && tempScoreMode !== 'cards') ? 'disabled' : ''}" onclick="addCardValue('${c.l}', ${c.v})">${c.l}</div>`; });
+        cards.forEach(c => {
+            let activeCardClass = (tempScoreMode === 'cards') ? 'active-card' : '';
+            html += `<div class="score-opt playing-card ${c.color} ${activeCardClass} ${(tempScoreMode !== null && tempScoreMode !== 'cards') ? 'disabled' : ''}" onclick="addCardValue('${c.l}', ${c.v})">${c.l}</div>`;
+        });
         grid.innerHTML = html;
         let sum = tempCardList.reduce((a, b) => a + b.v, 0);
         totalDisp.innerText = (tempScoreMode === 'cards') ? sum : (tempScoreMode === null ? 0 : tempScoreMode);
@@ -591,8 +672,9 @@
     }
 
     function submitRound() {
-        if (players.length === 0) { showBannerError('winner-error-banner', "Add players first!"); return; }
-        const activeScores = players.map(p => currentRoundScores[p]);
+        const activePlayers = players.filter(p => !skippedPlayers.has(p));
+        if (activePlayers.length === 0) { showBannerError('winner-error-banner', "Add or unskip players first!"); return; }
+        const activeScores = activePlayers.map(p => currentRoundScores[p]);
         if (activeScores.some(v => v === null || isNaN(v))) { 
             showBannerError('winner-error-banner', "Set valid scores for all active players!"); 
             return; 
@@ -601,60 +683,72 @@
         inputs.forEach(i => i.classList.remove('input-error'));
         let lowScorePlayers = []; let hasWinnerMinus20 = false;
         players.forEach((p, idx) => {
+            if (skippedPlayers.has(p)) return;
             const s = currentRoundScores[p];
             if (s === -20) hasWinnerMinus20 = true;
             if (s < -20) { lowScorePlayers.push(p); inputs[idx].classList.add('input-error'); }
         });
         if (lowScorePlayers.length > 0) { showBannerError('winner-error-banner', `${lowScorePlayers.join(', ')}: Score cannot be less than -20!`); return; }
-        const countMinus20 = players.filter(p => currentRoundScores[p] === -20).length;
-        const countZero = players.filter(p => currentRoundScores[p] === 0).length;
+        const countMinus20 = activePlayers.filter(p => currentRoundScores[p] === -20).length;
+        const countZero = activePlayers.filter(p => currentRoundScores[p] === 0).length;
         if (countMinus20 > 1) {
             let offending = [];
-            players.forEach((p, idx) => { if(currentRoundScores[p] === -20) { inputs[idx].classList.add('input-error'); offending.push(p); } });
+            players.forEach((p, idx) => { if(!skippedPlayers.has(p) && currentRoundScores[p] === -20) { inputs[idx].classList.add('input-error'); offending.push(p); } });
             showBannerError('winner-error-banner', `${offending.join(', ')}: Only one person can have -20!`); return;
         }
         if (hasWinnerMinus20 && countZero > 0) {
             let offending = [];
-            players.forEach((p, idx) => { if(currentRoundScores[p] === 0) { inputs[idx].classList.add('input-error'); offending.push(p); } });
+            players.forEach((p, idx) => { if(!skippedPlayers.has(p) && currentRoundScores[p] === 0) { inputs[idx].classList.add('input-error'); offending.push(p); } });
             showBannerError('winner-error-banner', `If winner has -20, others (${offending.join(', ')}) cannot have 0!`); return;
         }
         if (countMinus20 === 0 && countZero === 0) { showBannerError('winner-error-banner', "Winner required: One person must have -20 or 0!"); return; }
         let finalScores = {};
-        players.forEach(p => finalScores[p] = currentRoundScores[p]);
+        activePlayers.forEach(p => finalScores[p] = currentRoundScores[p]);
         if (editRoundIndex !== -1) rounds[editRoundIndex] = { scores: finalScores };
         else rounds.push({ scores: finalScores });
         resetRoundScores(); renderEntryList(); renderTable(); renderReaddSection();
         saveData();
     }
 
-    function renderTable(showFullNames = false) {
+    function renderTable(showFullNames = showFullNamesOnScoreboard) {
         const histPlayers = Array.from(allHistoricalPlayers);
-        document.getElementById('table-headers').innerHTML = '<th>Rnd</th>' + histPlayers.map(p => `<th>${showFullNames ? p : p.charAt(0)}</th>`).join('');
+        document.getElementById('table-headers').innerHTML = '<th>Round</th>' + histPlayers.map(p => `<th>${showFullNames ? p : p.charAt(0)}</th>`).join('');
         const tbody = document.getElementById('table-body');
         const tfoot = document.getElementById('table-footer');
-        tbody.innerHTML = ''; let tot = {}; histPlayers.forEach(p => tot[p] = 0);
+        tbody.innerHTML = ''; let tot = {}; let wasSkippedOnce = {};
+        histPlayers.forEach(p => { tot[p] = 0; wasSkippedOnce[p] = false; });
         rounds.forEach((r, idx) => {
             let row = `<tr class="table-clickable ${idx === editRoundIndex ? 'editing-row' : ''}" onclick="editRound(${idx})"><td>${idx + 1}</td>`;
             histPlayers.forEach(p => { 
                 let s = r.scores[p] !== undefined ? r.scores[p] : "-"; 
                 if(s !== "-") tot[p] += s;
+                else wasSkippedOnce[p] = true;
                 row += `<td class="${s===-20?'score-m20':(s>=50?'score-high':'')}">${s}</td>`; 
             });
             tbody.innerHTML += row + '</tr>';
         });
         if (rounds.length > 0) {
-            let totals = Object.values(tot); let min = Math.min(...totals); let max = Math.max(...totals);
-            let fRow = `<tr><td>TOT</td>`;
+            const eligiblePlayers = histPlayers.filter(p => !wasSkippedOnce[p]);
+            const eligibleTotals = eligiblePlayers.map(p => tot[p]);
+            let min = eligibleTotals.length > 0 ? Math.min(...eligibleTotals) : null;
+            let max = eligibleTotals.length > 0 ? Math.max(...eligibleTotals) : null;
+            let fRow = `<tr><td><b>Total</b></td>`;
             histPlayers.forEach(p => { 
-                let isW = tot[p] === min; let isL = tot[p] === max && max !== min;
+                let isEligible = !wasSkippedOnce[p];
+                let isW = isEligible && min !== null && tot[p] === min;
+                let isL = isEligible && max !== null && tot[p] === max && max !== min;
                 let cssClass = isW ? 'winner-highlight' : (isL ? 'loser-highlight' : '');
                 let label = isW ? '<span class="badge-label">Winner</span>' : (isL ? '<span class="badge-label">Loser</span>' : '');
-                fRow += `<td class="${cssClass}">${tot[p]}${label}</td>`; 
+                fRow += `<td class="${cssClass}"><b>${tot[p]}</b>${label}</td>`; 
             });
             tfoot.innerHTML = fRow + '</tr>';
             document.getElementById('table-summary').style.display = "flex";
-            let leader = histPlayers.find(p => tot[p] === min);
-            document.getElementById('round-summary').innerHTML = `<small>Leader: 👑 <b>${leader}</b> (${min})</small>`;
+            if (eligiblePlayers.length > 0) {
+                let leader = eligiblePlayers.find(p => tot[p] === min);
+                document.getElementById('round-summary').innerHTML = `<small>Leader: 👑 <b>${leader}</b> (${min})</small>`;
+            } else {
+                document.getElementById('round-summary').innerHTML = `<small>Leader: -</small>`;
+            }
         } else { document.getElementById('table-summary').style.display = "none"; tfoot.innerHTML = ""; }
     }
 </script>
