@@ -6,7 +6,7 @@
     <title>Minimum Pro - Card Scorer</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        :root { --gold: #e0b210; --dark-bg: #1a1a1a; --card-bg: #2d2d2d; --danger: #ff4d4d; --success: #00ff88; --off-white: #f8f9fa; --test-blue: #0d6efd; }
+        :root { --gold: #e0b210; --charcoal: #36454f; --dark-bg: #1a1a1a; --card-bg: #2d2d2d; --danger: #ff4d4d; --success: #00ff88; --off-white: #f8f9fa; --test-blue: #0d6efd; }
         
         /* Mobile-first and 400px width optimizations */
         body { background-color: var(--dark-bg); color: white; font-family: 'Segoe UI', sans-serif; padding-bottom: 40px; font-size: 14px; }
@@ -21,6 +21,9 @@
 
         .btn-gold { background-color: var(--gold) !important; color: white !important; font-weight: bold; border: none; }
         .btn-gold:hover, .btn-gold:focus { background-color: var(--gold) !important; color: white !important; box-shadow: none; opacity: 0.9; }
+
+        .btn-charcoal { background-color: var(--charcoal) !important; color: white !important; font-weight: bold; border: none !important; }
+        .btn-charcoal:hover, .btn-charcoal:focus { background-color: var(--charcoal) !important; color: white !important; box-shadow: none; opacity: 0.9; }
         
         .btn-test { background-color: var(--test-blue) !important; color: white !important; font-weight: bold; border: none; }
         
@@ -28,7 +31,8 @@
         .btn-danger-solid { background-color: var(--danger) !important; color: white !important; font-weight: bold; border: none; }
         .btn-danger-solid:hover, .btn-danger-solid:focus { background-color: var(--danger) !important; opacity: 0.9; box-shadow: none; }
 
-        .btn-export { background-color: transparent !important; color: var(--gold) !important; border: 1px solid var(--gold) !important; }
+        .btn-export { background-color: var(--charcoal) !important; color: white !important; font-weight: bold; border: none !important; display: inline-flex; align-items: center; gap: 4px; }
+        .btn-export:hover, .btn-export:focus { background-color: var(--charcoal) !important; color: white !important; opacity: 0.9; box-shadow: none; }
         .btn-xs { padding: 2px 6px; font-size: 0.75rem; border-radius: 4px; }
 
         .how-to-play-link {
@@ -39,6 +43,17 @@
             display: inline-block;
         }
         .how-to-play-link:hover, .how-to-play-link:focus {
+            color: var(--off-white);
+        }
+
+        .reset-game-link {
+            color: #9e9e9e;
+            text-decoration: underline;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: inline-block;
+        }
+        .reset-game-link:hover, .reset-game-link:focus {
             color: var(--off-white);
         }
 
@@ -91,17 +106,17 @@
             background: linear-gradient(165deg, #ffffff 0%, #f4efe2 100%);
             border: 1px solid #d0c6ad;
             box-shadow: inset 0 0 0 1px rgba(224, 178, 16, 0.35), 0 1px 2px rgba(0, 0, 0, 0.45);
+            color: #000 !important;
             position: relative;
         }
-        .score-opt.playing-card.card-red { color: #b91c1c; }
-        .score-opt.playing-card.card-black { color: #18181b; }
+        .score-opt.playing-card.card-red, .score-opt.playing-card.card-black { color: #000 !important; }
         .opt-m20 { color: #157347 !important; }
         .opt-50 { color: #bb2d3b !important; }
         .score-opt:active { background: var(--gold) !important; color: white !important; transform: scale(0.95); }
         .score-opt.active-20 { background: var(--success) !important; color: black !important; border-color: var(--success); }
         .score-opt.active-0 { background: #888 !important; color: white !important; border-color: #888; }
         .score-opt.active-50 { background: var(--danger) !important; color: white !important; border-color: var(--danger); }
-        .score-opt.active-card { background: var(--gold) !important; color: white !important; border-color: var(--gold) !important; }
+        .score-opt.playing-card.active-card { background: var(--gold) !important; color: #000 !important; border-color: var(--gold) !important; }
         .score-opt.disabled { opacity: 0.15; cursor: not-allowed; pointer-events: none; filter: grayscale(1); }
 
         .modal-display-area {
@@ -209,7 +224,7 @@
                     <div id="error-banner" class="status-banner">Player already exists!</div>
                     <div class="input-group input-group-sm mb-1">
                         <input type="text" id="player-name-game" class="form-control bg-dark text-white border-secondary" placeholder="Player Name">
-                        <button class="btn btn-outline-warning btn-sm px-3" onclick="addPlayer()">Add</button>
+                        <button class="btn btn-charcoal btn-sm px-3" onclick="addPlayer()">Add</button>
                     </div>
                     <div id="readd-section" style="display:none;">
                         <div class="small gold-text mb-1 fw-bold" style="font-size: 0.75rem;">Re-add Player:</div>
@@ -224,7 +239,7 @@
                     </div>
                     <div id="player-entry-list" class="entry-grid mb-2"></div>
                     <div class="text-center mt-2 mb-1">
-                        <button id="submit-btn" class="btn btn-gold btn-xs px-4 py-1" onclick="submitRound()">SUBMIT SCORE</button>
+                        <button id="submit-btn" class="btn btn-charcoal btn-xs px-4 py-1" onclick="submitRound()">SUBMIT SCORE</button>
                     </div>
                     <div id="winner-error-banner" class="status-banner" style="margin-bottom: 0; margin-top: 4px;">Winner required!</div>
                 </div>
@@ -235,7 +250,13 @@
         <div class="tab-pane fade" id="scoreboard-pane" role="tabpanel" aria-labelledby="scoreboard-tab" onclick="toggleScoreboardNames(event)">
             <div id="table-summary" class="table-summary-row">
                 <div id="round-summary"></div>
-                <button class="btn btn-gold btn-xs px-2 py-1" onclick="exportJPG()">Export Scoreboard</button>
+                <button class="btn btn-export btn-xs px-2 py-1" onclick="exportJPG()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/>
+                        <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/>
+                    </svg>
+                    <span>Image</span>
+                </button>
             </div>
 
             <div id="capture-area" style="padding: 0px; width: fit-content; min-width: 100%;">
@@ -262,13 +283,11 @@
                 <button class="btn btn-test btn-xs w-100 py-2" onclick="requestConfirmation('Load test data? This will clear all existing scores.', loadDummyData)">Load Test Data</button>
             </div>
         </div>
-        <div class="row g-2 mt-1">
-            <div class="col-12">
-                <button id="clear-all-btn" class="btn btn-danger-solid btn-xs w-100 py-2" onclick="requestConfirmation('DANGER: This will delete ALL history permanently. Continue?', clearAllData)">Clear All Data</button>
-            </div>
-        </div>
         <div class="text-center mt-2">
             <a href="#" class="how-to-play-link" data-bs-toggle="modal" data-bs-target="#rulesModal" onclick="event.preventDefault();">How to Play</a>
+        </div>
+        <div class="text-center mt-2">
+            <a href="#" id="reset-game-link" class="reset-game-link" onclick="event.preventDefault(); requestConfirmation('DANGER: This will delete ALL history permanently. Continue?', clearAllData);">Reset Game</a>
         </div>
     </div>
 </div>
@@ -289,6 +308,7 @@
                 
                 <div class="rules-sub-title">Card Values</div>
                 <ul>
+                    <li><span class="highlight-white">Joker:</span> 0 Point (Most precious card)</li>
                     <li><span class="highlight-white">Ace:</span> 1 Point</li>
                     <li><span class="highlight-white">2–10:</span> Face Value</li>
                     <li><span class="highlight-white">Jack:</span> 11 Points</li>
@@ -348,7 +368,7 @@
                 <ul>
                     <li><span class="highlight-white">Auto-Save:</span> Your game progress is saved to Local Storage. You can refresh the page or close the browser without losing your data.</li>
                     <li><span class="highlight-white">Edit Rounds:</span> Tap any row in the history table to reload that round. Fix the scores and tap Update to correct the standings.</li>
-                    <li><span class="highlight-white">Export:</span> Tap Export Scoreboard to save a high-quality JPG of the final results to share with the group.</li>
+                    <li><span class="highlight-white">Export:</span> Tap Image to save a high-quality JPG of the final results to share with the group.</li>
                 </ul>
 
                 <div class="rules-sub-title">4. Visual Indicators</div>
@@ -404,6 +424,7 @@
     let skippedPlayers = new Set();
     let allHistoricalPlayers = new Set();
     let activeModalPlayer = ""; let tempScoreMode = null; let tempCardList = [];
+    let lastTappedCardLabel = null;
     let editRoundIndex = -1;
     let titleClickCount = 0;
     let showFullNamesOnScoreboard = false;
@@ -594,7 +615,7 @@
             <div class="player-entry-item ${isSkipped ? 'skipped-player' : ''}">
                 <div class="player-header">
                     <span class="player-info text-truncate">${p}</span>
-                    <input type="text" class="manual-score-input" value="${displayVal}" placeholder="-" data-index="${idx}" ${isSkipped ? 'disabled' : ''}
+                    <input type="text" inputmode="numeric" class="manual-score-input" value="${displayVal}" placeholder="-" data-index="${idx}" ${isSkipped ? 'disabled' : ''}
                            onclick="this.value=''; this.classList.remove('input-error'); updateManualScore('${p}', '')"
                            oninput="this.classList.remove('input-error'); this.value = updateManualScore('${p}', this.value)">
                 </div>
@@ -641,6 +662,7 @@
         const ex = currentRoundScores[p];
         tempScoreMode = (ex === -20 || ex === 0 || ex === 50) ? ex : (ex === null ? null : 'cards');
         tempCardList = (tempScoreMode === 'cards') ? [{l:'?', v:ex}] : [];
+        lastTappedCardLabel = null;
         updateModalUI(); new bootstrap.Modal(document.getElementById('scoreModal')).show();
     }
 
@@ -654,7 +676,7 @@
             html += `<div class="score-opt ${obj.c} ${activeClass} ${(tempScoreMode !== null && tempScoreMode !== obj.v) ? 'disabled' : ''}" onclick="selectFixed(${obj.v})">${obj.l}</div>`;
         });
         cards.forEach(c => {
-            let activeCardClass = (tempScoreMode === 'cards') ? 'active-card' : '';
+            let activeCardClass = (tempScoreMode === 'cards' && lastTappedCardLabel === c.l) ? 'active-card' : '';
             html += `<div class="score-opt playing-card ${c.color} ${activeCardClass} ${(tempScoreMode !== null && tempScoreMode !== 'cards') ? 'disabled' : ''}" onclick="addCardValue('${c.l}', ${c.v})">${c.l}</div>`;
         });
         grid.innerHTML = html;
@@ -663,9 +685,9 @@
         tray.innerHTML = tempCardList.map(t => `<span class="tray-item">${t.l}</span>`).join('');
     }
 
-    function selectFixed(v) { tempScoreMode = (tempScoreMode === v) ? null : v; tempCardList = []; updateModalUI(); }
-    function addCardValue(l, v) { tempScoreMode = 'cards'; tempCardList.push({l, v}); updateModalUI(); }
-    function resetModalScore() { tempScoreMode = null; tempCardList = []; updateModalUI(); }
+    function selectFixed(v) { tempScoreMode = (tempScoreMode === v) ? null : v; tempCardList = []; lastTappedCardLabel = null; updateModalUI(); }
+    function addCardValue(l, v) { tempScoreMode = 'cards'; lastTappedCardLabel = l; tempCardList.push({l, v}); updateModalUI(); }
+    function resetModalScore() { tempScoreMode = null; tempCardList = []; lastTappedCardLabel = null; updateModalUI(); }
     function saveModalScore() {
         currentRoundScores[activeModalPlayer] = (tempScoreMode === 'cards') ? tempCardList.reduce((a, b) => a + b.v, 0) : tempScoreMode;
         renderEntryList(); bootstrap.Modal.getInstance(document.getElementById('scoreModal')).hide();
