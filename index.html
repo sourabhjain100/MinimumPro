@@ -93,13 +93,13 @@
 
         .readd-container { display: flex; flex-wrap: wrap; gap: 4px; padding: 4px; background: rgba(0,0,0,0.2); border-radius: 6px; }
 
-        /* Compact score calculator modal (-20 through K) */
+        /* Compact score calculator modal (-20 through K) in 2:3 ratio */
         #scoreModal .modal-dialog { max-width: 320px; margin: 0.75rem auto; }
         .score-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
         .score-opt { 
-            height: 36px; border-radius: 5px; border: 1px solid #ccc; 
+            width: 100%; aspect-ratio: 2 / 3; border-radius: 5px; border: 1px solid #ccc; 
             background: var(--off-white); color: #333; display: flex; align-items: center; 
-            justify-content: center; font-weight: 800; cursor: pointer; transition: 0.1s; font-size: 0.8rem;
+            justify-content: center; font-weight: 800; cursor: pointer; transition: 0.1s; font-size: 0.9rem;
             line-height: 1; padding: 0 2px;
         }
         .score-opt.playing-card {
@@ -108,6 +108,17 @@
             box-shadow: inset 0 0 0 1px rgba(224, 178, 16, 0.35), 0 1px 2px rgba(0, 0, 0, 0.45);
             color: #000 !important;
             position: relative;
+            overflow: hidden;
+        }
+        .score-opt.playing-card.has-card-art {
+            padding: 0;
+            background: #ffffff;
+        }
+        .score-opt.playing-card .card-face-img {
+            width: 100%;
+            height: 100%;
+            display: block;
+            pointer-events: none;
         }
         .score-opt.playing-card.card-red, .score-opt.playing-card.card-black { color: #000 !important; }
         .opt-m20 { color: #157347 !important; }
@@ -117,6 +128,7 @@
         .score-opt.active-0 { background: #888 !important; color: white !important; border-color: #888; }
         .score-opt.active-50 { background: var(--danger) !important; color: white !important; border-color: var(--danger); }
         .score-opt.playing-card.active-card { background: var(--gold) !important; color: #000 !important; border-color: var(--gold) !important; }
+        .score-opt.playing-card.has-card-art.active-card { outline: 2px solid var(--gold); outline-offset: -1px; }
         .score-opt.disabled { opacity: 0.15; cursor: not-allowed; pointer-events: none; filter: grayscale(1); }
 
         .modal-display-area {
@@ -259,7 +271,7 @@
                     <span>Image</span>
                 </button>
             </div>
-            <div class="scoreboard-edit-hint">Double tap any row to edit</div>
+            <div class="scoreboard-edit-hint">Double tap to edit</div>
 
             <div id="capture-area" style="padding: 0px; width: fit-content; min-width: 100%;">
                 <div id="jpg-title">
@@ -445,6 +457,18 @@
         {l:'Q',v:12,suit:'♦',color:'card-red'},
         {l:'K',v:13,suit:'♠',color:'card-black'}
     ];
+
+    function buildCardTileImage(label, suit, isRed) {
+        const fill = isRed ? '#c62828' : '#111111';
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 90" width="60" height="90" aria-hidden="true">` +
+            `<rect x="0" y="0" width="60" height="90" rx="5" fill="#fbf8f0"/>` +
+            `<rect x="2.5" y="2.5" width="55" height="85" rx="4" fill="none" stroke="#c8b88a" stroke-width="1"/>` +
+            `<text x="8" y="18" font-family="Georgia, 'Times New Roman', serif" font-size="13" font-weight="900" fill="${fill}">${label}</text>` +
+            `<text x="52" y="81" text-anchor="end" font-family="Georgia, 'Times New Roman', serif" font-size="13" font-weight="900" fill="${fill}">${label}</text>` +
+            `<text x="30" y="55" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="32" fill="${fill}">${suit}</text>` +
+            `</svg>`;
+        return `<img class="card-face-img" src="data:image/svg+xml;utf8,${encodeURIComponent(svg)}" alt="${label} of ${suit}">`;
+    }
 
     // --- Persistence Logic ---
     function saveData() {
@@ -688,9 +712,12 @@
             let activeClass = (tempScoreMode === obj.v) ? `active-${obj.v === -20 ? '20' : obj.v}` : '';
             html += `<div class="score-opt ${obj.c} ${activeClass} ${(tempScoreMode !== null && tempScoreMode !== obj.v) ? 'disabled' : ''}" onclick="selectFixed(${obj.v})">${obj.l}</div>`;
         });
+        const faceArtCards = new Set(['A', 'J', 'Q', 'K']);
         cards.forEach(c => {
             let activeCardClass = (tempScoreMode === 'cards' && lastTappedCardLabel === c.l) ? 'active-card' : '';
-            html += `<div class="score-opt playing-card ${c.color} ${activeCardClass} ${(tempScoreMode !== null && tempScoreMode !== 'cards') ? 'disabled' : ''}" onclick="addCardValue('${c.l}', ${c.v})">${c.l}</div>`;
+            let hasArt = faceArtCards.has(c.l);
+            let tileContent = hasArt ? buildCardTileImage(c.l, c.suit, c.color === 'card-red') : c.l;
+            html += `<div class="score-opt playing-card ${c.color} ${hasArt ? 'has-card-art' : ''} ${activeCardClass} ${(tempScoreMode !== null && tempScoreMode !== 'cards') ? 'disabled' : ''}" onclick="addCardValue('${c.l}', ${c.v})">${tileContent}</div>`;
         });
         grid.innerHTML = html;
         let sum = tempCardList.reduce((a, b) => a + b.v, 0);
