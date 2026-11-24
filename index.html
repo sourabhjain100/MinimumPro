@@ -142,6 +142,7 @@
         
         .table-clickable { cursor: pointer; }
         .editing-row { background-color: rgba(224, 178, 16, 0.4) !important; border: 1px solid var(--gold); }
+        .scoreboard-edit-hint { font-size: 0.72rem; font-style: italic; color: #b5b5b5; margin-bottom: 6px; }
 
         .status-banner { 
             display: none; background: var(--danger); color: white; 
@@ -200,7 +201,7 @@
 <body>
 
 <div class="container mt-3">
-    <div class="text-center mb-2" style="user-select: none;">
+    <div class="text-center mb-3" style="user-select: none;">
         <h1 class="gold-text m-0" style="letter-spacing: 3px; font-weight: 900; font-size: 1.75rem; cursor: pointer;" onclick="handleTitleClick()">MINIMUM PRO</h1>
     </div>
 
@@ -220,7 +221,7 @@
         <!-- ENTRY PANE -->
         <div class="tab-pane fade show active" id="entry-pane" role="tabpanel" aria-labelledby="entry-tab">
             <div id="game-section">
-                <div class="card p-2 mb-2">
+                <div class="card p-2 mb-2 mt-1">
                     <div id="error-banner" class="status-banner">Player already exists!</div>
                     <div class="input-group input-group-sm mb-1">
                         <input type="text" id="player-name-game" class="form-control bg-dark text-white border-secondary" placeholder="Player Name">
@@ -235,10 +236,10 @@
                 <div class="card p-2 mb-2">
                     <div class="d-flex justify-content-between align-items-center mb-2 px-1">
                         <span class="gold-text fw-bold" style="font-size: 0.85rem;"><span id="mode-text">Round</span> <span id="round-num-display">1</span></span>
-                        <button id="cancel-edit-btn" class="btn btn-outline-light btn-xs" style="display:none;" onclick="cancelEdit()">Cancel</button>
                     </div>
                     <div id="player-entry-list" class="entry-grid mb-2"></div>
-                    <div class="text-center mt-2 mb-1">
+                    <div class="text-center mt-2 mb-1 d-flex justify-content-center gap-2">
+                        <button id="cancel-edit-btn" class="btn btn-charcoal btn-xs px-3 py-1" style="display:none;" onclick="cancelEdit()">Cancel</button>
                         <button id="submit-btn" class="btn btn-charcoal btn-xs px-4 py-1" onclick="submitRound()">SUBMIT SCORE</button>
                     </div>
                     <div id="winner-error-banner" class="status-banner" style="margin-bottom: 0; margin-top: 4px;">Winner required!</div>
@@ -258,6 +259,7 @@
                     <span>Image</span>
                 </button>
             </div>
+            <div class="scoreboard-edit-hint">Double tap any row to edit</div>
 
             <div id="capture-area" style="padding: 0px; width: fit-content; min-width: 100%;">
                 <div id="jpg-title">
@@ -367,7 +369,7 @@
                 <div class="rules-sub-title">3. History & Persistence</div>
                 <ul>
                     <li><span class="highlight-white">Auto-Save:</span> Your game progress is saved to Local Storage. You can refresh the page or close the browser without losing your data.</li>
-                    <li><span class="highlight-white">Edit Rounds:</span> Tap any row in the history table to reload that round. Fix the scores and tap Update to correct the standings.</li>
+                    <li><span class="highlight-white">Edit Rounds:</span> Double tap any row in the history table to reload that round. Fix the scores and tap Update to correct the standings.</li>
                     <li><span class="highlight-white">Export:</span> Tap Image to save a high-quality JPG of the final results to share with the group.</li>
                 </ul>
 
@@ -468,7 +470,18 @@
         }
     }
 
-    window.onload = loadData;
+    function updateFooterVisibility() {
+        const scoreboardActive = document.getElementById('scoreboard-tab').classList.contains('active');
+        document.getElementById('debug-footer').style.display = scoreboardActive ? 'none' : 'block';
+    }
+
+    window.onload = function() {
+        loadData();
+        document.querySelectorAll('#appTabs button[data-bs-toggle="tab"]').forEach(tabEl => {
+            tabEl.addEventListener('shown.bs.tab', updateFooterVisibility);
+        });
+        updateFooterVisibility();
+    };
     // -------------------------
 
     function handleTitleClick() {
@@ -740,7 +753,7 @@
         tbody.innerHTML = ''; let tot = {}; let wasSkippedOnce = {};
         histPlayers.forEach(p => { tot[p] = 0; wasSkippedOnce[p] = false; });
         rounds.forEach((r, idx) => {
-            let row = `<tr class="table-clickable ${idx === editRoundIndex ? 'editing-row' : ''}" onclick="editRound(${idx})"><td>${idx + 1}</td>`;
+            let row = `<tr class="table-clickable ${idx === editRoundIndex ? 'editing-row' : ''}" ondblclick="editRound(${idx})"><td>${idx + 1}</td>`;
             histPlayers.forEach(p => { 
                 let s = r.scores[p] !== undefined ? r.scores[p] : "-"; 
                 if(s !== "-") tot[p] += s;
