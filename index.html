@@ -166,18 +166,6 @@
         }
 
         #jpg-title { display: none; text-align: center; margin-bottom: 15px; }
-        
-        .table-summary-row {
-            display: none;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(255,255,255,0.05);
-            padding: 6px 10px;
-            border-left: 3px solid var(--gold);
-            border-radius: 4px;
-            margin-bottom: 8px;
-            font-size: 0.8rem;
-        }
         .border-gold { border: 1px solid var(--gold) !important; }
         
         #debug-footer { display: block; }
@@ -264,9 +252,6 @@
 
         <!-- SCOREBOARD PANE -->
         <div class="tab-pane fade" id="scoreboard-pane" role="tabpanel" aria-labelledby="scoreboard-tab" onclick="toggleScoreboardNames(event)">
-            <div id="table-summary" class="table-summary-row">
-                <div id="round-summary"></div>
-            </div>
             <div class="scoreboard-hint-row">
                 <div class="scoreboard-edit-hint">Double tap any row to edit</div>
                 <button class="btn btn-export btn-xs px-2 py-1" onclick="exportJPG()">
@@ -691,7 +676,6 @@
     function clearAllData() {
         players = []; rounds = []; currentRoundScores = {}; skippedPlayers.clear(); allHistoricalPlayers.clear();
         updateUIMode(); renderEntryList(); renderTable(); renderReaddSection();
-        document.getElementById('table-summary').style.display = "none";
         localStorage.removeItem('minPro_Data');
     }
 
@@ -888,14 +872,7 @@
                 fRow += `<td class="${cssClass}"><b>${tot[p]}</b>${label}</td>`; 
             });
             tfoot.innerHTML = fRow + '</tr>';
-            document.getElementById('table-summary').style.display = "flex";
-            if (eligiblePlayers.length > 0) {
-                let leader = eligiblePlayers.find(p => tot[p] === min);
-                document.getElementById('round-summary').innerHTML = `<small>Leader: 👑 <b>${leader}</b> (${min})</small>`;
-            } else {
-                document.getElementById('round-summary').innerHTML = `<small>Leader: -</small>`;
-            }
-        } else { document.getElementById('table-summary').style.display = "none"; tfoot.innerHTML = ""; }
+        } else { tfoot.innerHTML = ""; }
     }
 </script>
 </body>
